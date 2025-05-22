@@ -1,15 +1,98 @@
 const { bucket } = require('../firebase');
 
+swagger_schema = {
+  schema: {
+    description: 'Retrieve signed URLs for images of a specific item',
+    tags: ['Images'],
+    summary: 'Get signed URLs for item images',
+    params: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: 'The ID of the item' },
+      },
+      required: ['id'],
+    },
+    response: {
+      200: {
+        description: 'Successful retrieval of signed URLs',
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          data: {
+            type: 'object',
+            properties: {
+              original: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    filename: { type: 'string' },
+                    url: { type: 'string' },
+                  },
+                },
+              },
+              small: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    filename: { type: 'string' },
+                    url: { type: 'string' },
+                  },
+                },
+              },
+              medium: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    filename: { type: 'string' },
+                    url: { type: 'string' },
+                  },
+                },
+              },
+              large: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    filename: { type: 'string' },
+                    url: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      500: {
+        description: 'Internal server error',
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          data: {
+            type: 'object',
+            properties: {
+              error: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 module.exports = async function (fastify) {
-  fastify.get('/image/:id', async function (req, reply) {
+  fastify.get('/image/:id', swagger_schema, async function (req, reply) {
     const { id } = req.params;
 
     const sizes = ['original', 'small', 'medium', 'large'];
     const urls = {};
+    let image_dir = process.env.IMAGE_DIR ? process.env.IMAGE_DIR  + '/' : '';
 
     try {
       for (const size of sizes) {
-        const directory = `item/${id}/${size}`;
+        const directory = `${image_dir}${id}/${size}`;
         const [files] = await bucket.getFiles({ prefix: directory });
 
         urls[size] = await Promise.all(
