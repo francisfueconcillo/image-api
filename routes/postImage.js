@@ -9,6 +9,13 @@ swagger_schema = {
     tags: ['Images'],
     summary: 'Upload an image to the server',
     consumes: ['multipart/form-data'],
+    params: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: 'The ID of the item' },
+      },
+      required: ['id'],
+    },
     body: {
       type: 'object',
       properties: {
@@ -55,24 +62,36 @@ swagger_schema = {
 };
 
 module.exports = async function (fastify) {
-  fastify.post('/image', swagger_schema, async function (req, reply) {
-    const parts = req.parts();
-    for await (const part of parts) {
-      if (part.file) {
-        const filename = `${Date.now()}-${part.filename}`;
-        const file = bucket.file(filename);
-        await pump(part.file, file.createWriteStream({ contentType: part.mimetype }));
+  fastify.post('/image/:id', swagger_schema, async function (req, reply) {
+    const { id } = req.params;
 
-        return reply.send({
-          status: 'success',
-          data: { filename },
-        });
+    try {
+      const parts = req.parts();
+      for await (const part of parts) {
+        if (part.file) {
+          const directory = `item/${id}/original`;
+          const filename = `${Date.now()}-${part.filename}`;
+          const filePath = `${directory}/${filename}`;
+          const file = bucket.file(filePath);
+
+          await pump(part.file, file.createWriteStream({ contentType: part.mimetype }));
+
+          return reply.send({
+            status: 'success',
+            data: { filename, path: filePath },
+          });
+        }
       }
-    }
 
-    reply.code(400).send({
-      status: 'fail',
-      data: { error: 'No file uploaded' }
-    });
+      reply.code(400).send({
+        status: 'fail',
+        data: { error: 'No file uploaded' },
+      });
+    } catch (err) {
+      reply.code(500).send({
+        status: 'error',
+        data: { error: err.message },
+      });
+    }
   });
 };
