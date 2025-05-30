@@ -69,7 +69,8 @@ module.exports = async function (fastify) {
       const parts = req.parts();
       for await (const part of parts) {
         if (part.file) {
-          const directory = `item/${id}/original`;
+          const image_dir = process.env.IMAGE_DIR ? process.env.IMAGE_DIR  + '/' : '';
+          const directory = `${image_dir}${id}/original`;
           const filename = `${Date.now()}-${part.filename}`;
           const filePath = `${directory}/${filename}`;
           const file = bucket.file(filePath);

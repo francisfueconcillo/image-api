@@ -88,7 +88,7 @@ module.exports = async function (fastify) {
 
     const sizes = ['original', 'small', 'medium', 'large'];
     const urls = {};
-    let image_dir = process.env.IMAGE_DIR ? process.env.IMAGE_DIR  + '/' : '';
+    const image_dir = process.env.IMAGE_DIR ? process.env.IMAGE_DIR  + '/' : '';
 
     try {
       for (const size of sizes) {
