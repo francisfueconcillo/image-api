@@ -8,7 +8,7 @@
       "program": "${workspaceFolder}/index.js",
       "envFile": "${workspaceFolder}/.env",
       "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "node",
+      "runtimeExecutable": "/Users/maddog/.nvm/versions/node/v20.11.1/bin/node",
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"]
     }
