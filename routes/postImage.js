@@ -77,6 +77,7 @@ const postImageSchema = {
             type: 'object',
             properties: {
               filename: { type: 'string' },
+              path: { type: 'string' },
             },
           },
         },

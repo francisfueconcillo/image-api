@@ -66,7 +66,7 @@ describe('POST /image/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('success');
     expect(res.body.data.filename).toMatch(/test\.png$/);
-    // expect(res.body.data.path).toMatch(/item\/123\/original\//);
+    expect(res.body.data.path).toMatch(/item\/123\/original\//);
 
     expect(mockTopic).toHaveBeenCalledWith(process.env.PUBSUB_TOPIC);
     expect(mockPublishMessage).toHaveBeenCalled();

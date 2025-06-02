@@ -1,7 +1,7 @@
 {
   "name": "image-api",
   "version": "1.0.0",
-  "description": "An Image API to work for an E-commerce Flutter App",
+  "description": "An Image API to store images to Firebase Cloud Storage",
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage",
@@ -24,7 +24,7 @@
     ]
   },
   "keywords": [],
-  "author": "",
+  "author": "Francis Fueconcillo<francisfueconcillo@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "@fastify/cors": "^11.0.1",
