@@ -4,20 +4,41 @@ const postImageRoute = require('../routes/postImage');
 const stream = require('stream');
 const { bucket } = require('../firebase'); // Mock Firebase bucket
 
-const mockWriteStream = new stream.Writable({
-  write(chunk, encoding, callback) {
-    callback();
-  },
+
+jest.mock('../firebase', () => {
+  const mockPublishMessage = jest.fn();
+
+  const mockTopic = jest.fn(() => ({
+    publishMessage: mockPublishMessage,
+  }));
+
+  const mockWriteStream = new (require('stream').Writable)({
+    write(chunk, encoding, callback) {
+      callback();
+    },
+  });
+
+  return {
+    bucket: {
+      file: jest.fn(() => ({
+        createWriteStream: jest.fn(() => mockWriteStream),
+      })),
+    },
+    pubsub: {
+      topic: mockTopic,
+    },
+    __esModule: true, // Optional, if you're using ESModule interop
+    mockTopic,
+    mockPublishMessage,
+  };
 });
 
-jest.mock('../firebase', () => ({
-  bucket: {
-    file: jest.fn(() => ({
-      createWriteStream: jest.fn(() => mockWriteStream),
-    })),
-  },
-}));
+const { pubsub } = require('../firebase');
+const { mockTopic, mockPublishMessage } = require('../firebase');
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('POST /image/:id', () => {
   let fastify;
@@ -46,6 +67,9 @@ describe('POST /image/:id', () => {
     expect(res.body.status).toBe('success');
     expect(res.body.data.filename).toMatch(/test\.png$/);
     // expect(res.body.data.path).toMatch(/item\/123\/original\//);
+
+    expect(mockTopic).toHaveBeenCalledWith(process.env.PUBSUB_TOPIC);
+    expect(mockPublishMessage).toHaveBeenCalled();
   });
 
   // FIXME

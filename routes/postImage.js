@@ -1,7 +1,7 @@
 const { pipeline } = require('stream');
 const util = require('util');
 const pump = util.promisify(pipeline);
-const { bucket } = require('../firebase');
+const { bucket, pubsub } = require('../firebase');
 
 module.exports = async function (fastify) {
   fastify.post('/image/:id', postImageSchema, async function (req, reply) {
@@ -18,6 +18,10 @@ module.exports = async function (fastify) {
           const file = bucket.file(filePath);
 
           await pump(part.file, file.createWriteStream({ contentType: part.mimetype }));
+
+          await pubsub.topic(process.env.PUBSUB_TOPIC).publishMessage({
+            json: { filePath },
+          });
 
           return reply.send({
             status: 'success',
