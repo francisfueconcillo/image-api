@@ -2,6 +2,7 @@ const Fastify = require('fastify');
 const request = require('supertest');
 const postImageRoute = require('../routes/postImage');
 const stream = require('stream');
+const { bucket } = require('../firebase'); // Mock Firebase bucket
 
 const mockWriteStream = new stream.Writable({
   write(chunk, encoding, callback) {
@@ -40,7 +41,6 @@ describe('POST /image/:id', () => {
         contentType: 'image/png',
       });
 
-    console.log(res.body); // Log the response body for debugging
 
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('success');
@@ -49,7 +49,25 @@ describe('POST /image/:id', () => {
   });
 
   // FIXME
+  // it('should return 500 if firebase error', async () => {
+  //   bucket.file.createWriteStream.mockRejectedValue(new Error('Firebase error'));
+
+  //   const res = await request(fastify.server)
+  //     .post('/image/123')
+  //     .attach('file', Buffer.from('test file content'), {
+  //       filename: 'test.png',
+  //       contentType: 'image/png',
+  //     });
+
+  //   expect(res.status).toBe(500);
+  //   expect(res.body.status).toBe('error');
+  //   expect(res.body.data.error).toBe('Firebase error');
+  // });
+
+  // FIXME
   // it('should return 400 if no file is uploaded', async () => {
+  //   bucket.file.mockRejectedValue(new Error('Firebase error'));
+
   //   const res = await request(fastify.server).post('/image/123');
 
   //   expect(res.status).toBe(400);
