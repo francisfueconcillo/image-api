@@ -66,9 +66,9 @@ describe('POST /image/:id', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('success');
-    expect(res.body.data[0].filename).toMatch(/test\.png$/);
-    expect(res.body.data[0].path).toMatch(/item\/123\/original\//);
-    expect(res.body.data[0].url).toBe('signed-url');
+    expect(res.body.data.original[0].filename).toMatch(/test\.png$/);
+    expect(res.body.data.original[0].path).toMatch(/item\/123\/original\//);
+    expect(res.body.data.original[0].url).toBe('signed-url');
     expect(mockTopic).toHaveBeenCalledWith(process.env.PUBSUB_TOPIC);
     expect(mockPublishMessage).toHaveBeenCalled();
   });

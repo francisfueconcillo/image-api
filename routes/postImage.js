@@ -9,7 +9,7 @@ module.exports = async function (fastify) {
 
     try {
       const parts = req.parts();
-      const uploadedFiles = [];
+      const data = { original: [] };
       for await (const part of parts) {
         if (part.file) {
           const image_dir = process.env.IMAGE_DIR ? process.env.IMAGE_DIR  + '/' : '';
@@ -35,11 +35,11 @@ module.exports = async function (fastify) {
             url = null;
           }
 
-          uploadedFiles.push({ filename, path: filePath, url });
+          data.original.push({ filename, path: filePath, url });
         }
       }
 
-      if (uploadedFiles.length > 0) {
+      if (data.original.length > 0) {
         // Workaround to make sure the image resizer is running
         fetch(process.env.IMAGE_RESIZER_URL)
           .catch(err => {
@@ -48,7 +48,7 @@ module.exports = async function (fastify) {
 
         return reply.send({
           status: 'success',
-          data: uploadedFiles,
+          data,
         });
       }
 
@@ -96,13 +96,18 @@ const postImageSchema = {
         properties: {
           status: { type: 'string' },
           data: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                filename: { type: 'string' },
-                path: { type: 'string' },
-                url: { type: 'string' },
+            type: 'object',
+            properties: {
+              original: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    filename: { type: 'string' },
+                    path: { type: 'string' },
+                    url: { type: 'string' },
+                  },
+                },
               },
             },
           },
