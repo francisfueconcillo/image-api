@@ -23,6 +23,12 @@ module.exports = async function (fastify) {
             json: { filePath },
           });
 
+          // Workaround to make sure the image resizer is running
+          fetch(process.env.IMAGE_RESIZER_URL)
+            .catch(err => {
+              req.log.warn({ err }, 'Failed to call image resizer');
+            });
+
           return reply.send({
             status: 'success',
             data: { filename, path: filePath },
