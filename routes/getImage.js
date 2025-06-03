@@ -3,34 +3,38 @@ const { bucket } = require('../firebase');
 module.exports = async function (fastify) {
   fastify.get('/image/:id', getImageSchema, async function (req, reply) {
     const { id } = req.params;
-
     const sizes = ['original', 'small', 'medium', 'large'];
-    const urls = {};
     const image_dir = process.env.IMAGE_DIR ? process.env.IMAGE_DIR  + '/' : '';
+    const data = { original: [], small: [], medium: [], large: [] };
 
     try {
       for (const size of sizes) {
         const directory = `${image_dir}${id}/${size}`;
         const [files] = await bucket.getFiles({ prefix: directory });
 
-        urls[size] = await Promise.all(
+        const fileArr = await Promise.all(
           files.map(async (file) => {
             try {
               const [url] = await file.getSignedUrl({
                 action: 'read',
                 expires: Date.now() + 1000 * 60 * 60, // 1 hour
               });
-              return { filename: file.name, url };
+              const path = file.name;
+              const filename = path.split('/').pop();
+              return { filename, path, url };
             } catch (err) {
-              return { filename: file.name, url: null };
+              const path = file.name;
+              const filename = path.split('/').pop();
+              return { filename, path, url: null };
             }
           })
         );
+        data[size] = fileArr.map(({ filename, path, url }) => ({ filename, path, url }));
       }
 
       reply.send({
         status: 'success',
-        data: urls,
+        data,
       });
     } catch (err) {
       reply.code(500).send({
@@ -70,6 +74,7 @@ const getImageSchema = {
                   type: 'object',
                   properties: {
                     filename: { type: 'string' },
+                    path: { type: 'string' },
                     url: { type: 'string' },
                   },
                 },
@@ -80,6 +85,7 @@ const getImageSchema = {
                   type: 'object',
                   properties: {
                     filename: { type: 'string' },
+                    path: { type: 'string' },
                     url: { type: 'string' },
                   },
                 },
@@ -90,6 +96,7 @@ const getImageSchema = {
                   type: 'object',
                   properties: {
                     filename: { type: 'string' },
+                    path: { type: 'string' },
                     url: { type: 'string' },
                   },
                 },
@@ -100,6 +107,7 @@ const getImageSchema = {
                   type: 'object',
                   properties: {
                     filename: { type: 'string' },
+                    path: { type: 'string' },
                     url: { type: 'string' },
                   },
                 },

@@ -9,6 +9,7 @@ module.exports = async function (fastify) {
 
     try {
       const parts = req.parts();
+      const uploadedFiles = [];
       for await (const part of parts) {
         if (part.file) {
           const image_dir = process.env.IMAGE_DIR ? process.env.IMAGE_DIR  + '/' : '';
@@ -23,17 +24,32 @@ module.exports = async function (fastify) {
             json: { filePath },
           });
 
-          // Workaround to make sure the image resizer is running
-          fetch(process.env.IMAGE_RESIZER_URL)
-            .catch(err => {
-              req.log.warn({ err }, 'Failed to call image resizer');
+          // Get signed URL for the uploaded file
+          let url = null;
+          try {
+            [url] = await file.getSignedUrl({
+              action: 'read',
+              expires: Date.now() + 1000 * 60 * 60, // 1 hour
             });
+          } catch (err) {
+            url = null;
+          }
 
-          return reply.send({
-            status: 'success',
-            data: { filename, path: filePath },
-          });
+          uploadedFiles.push({ filename, path: filePath, url });
         }
+      }
+
+      if (uploadedFiles.length > 0) {
+        // Workaround to make sure the image resizer is running
+        fetch(process.env.IMAGE_RESIZER_URL)
+          .catch(err => {
+            req.log.warn({ err }, 'Failed to call image resizer');
+          });
+
+        return reply.send({
+          status: 'success',
+          data: uploadedFiles,
+        });
       }
 
       reply.code(400).send({
@@ -80,10 +96,14 @@ const postImageSchema = {
         properties: {
           status: { type: 'string' },
           data: {
-            type: 'object',
-            properties: {
-              filename: { type: 'string' },
-              path: { type: 'string' },
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                filename: { type: 'string' },
+                path: { type: 'string' },
+                url: { type: 'string' },
+              },
             },
           },
         },

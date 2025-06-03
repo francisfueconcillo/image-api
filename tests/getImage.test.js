@@ -41,7 +41,8 @@ describe('GET /image/:id', () => {
     const body = JSON.parse(response.body);
     expect(body.status).toBe('success');
     expect(body.data.original).toHaveLength(2);
-    expect(body.data.original[0]).toHaveProperty('filename', 'item/123/original/file1.jpg');
+    expect(body.data.original[0]).toHaveProperty('filename', 'file1.jpg');
+    expect(body.data.original[0]).toHaveProperty('path', 'item/123/original/file1.jpg');
     expect(body.data.original[0]).toHaveProperty('url', 'https://example.com/file1.jpg');
   });
 
