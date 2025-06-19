@@ -2,9 +2,14 @@ require('dotenv').config();
 
 const fastify = require('fastify')({ logger: true });
 
-fastify.register(require('@fastify/multipart'));
+fastify.register(require('@fastify/multipart'), {
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10 MB
+  }
+});
+
 fastify.register(require('@fastify/cors'), {
-  origin: '*', // TODO - check how to limit this for apps
+  origin: '*',
 });
 
 // Register Swagger
