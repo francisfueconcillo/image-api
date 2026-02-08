@@ -39,7 +39,8 @@ module.exports = async function (fastify) {
     } catch (err) {
       reply.code(500).send({
         status: 'error',
-        data: { error: err.message },
+        message: err.message,
+        data: null,
       });
     }
 
@@ -65,6 +66,7 @@ const getImageSchema = {
         type: 'object',
         properties: {
           status: { type: 'string' },
+          message: { type: 'string' },
           data: {
             type: 'object',
             properties: {
@@ -121,12 +123,8 @@ const getImageSchema = {
         type: 'object',
         properties: {
           status: { type: 'string' },
-          data: {
-            type: 'object',
-            properties: {
-              error: { type: 'string' },
-            },
-          },
+          message: { type: 'string' },
+          data: { type: null },
         },
       },
     },

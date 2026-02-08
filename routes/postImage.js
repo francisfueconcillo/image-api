@@ -54,12 +54,14 @@ module.exports = async function (fastify) {
 
       reply.code(400).send({
         status: 'fail',
-        data: { error: 'No file uploaded' },
+        message: 'No file uploaded',
+        data: null,
       });
     } catch (err) {
       reply.code(500).send({
         status: 'error',
-        data: { error: err.message },
+        message: err.message,
+        data: null,
       });
     }
   });
@@ -95,6 +97,7 @@ const postImageSchema = {
         type: 'object',
         properties: {
           status: { type: 'string' },
+          message: { type: 'string' },
           data: {
             type: 'object',
             properties: {
@@ -118,12 +121,8 @@ const postImageSchema = {
         type: 'object',
         properties: {
           status: { type: 'string' },
-          data: {
-            type: 'object',
-            properties: {
-              error: { type: 'string' },
-            },
-          },
+          message: { type: 'string' },
+          data: { type: 'null' },
         },
       },
     },
