@@ -74,9 +74,11 @@ const getImageSchema = {
         properties: {
           status: { type: 'string' },
           message: { type: 'string' },
-          data: { type: null },
+          data: { type: 'null' },
         },
       },
     },
   },
 };
+
+module.exports = getImageSchema;

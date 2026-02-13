@@ -62,3 +62,5 @@ const postImageSchema = {
   attachValidation: true,
   // skipValidation: true,
 };
+
+module.exports = postImageSchema;
