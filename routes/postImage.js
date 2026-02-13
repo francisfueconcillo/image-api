@@ -1,4 +1,5 @@
 const { put } = require('../blob');
+const { pubsub } = require('../firebase');
 const postImageSchema = require('./postImage.schema');
 
 module.exports = async function (fastify) {
@@ -26,6 +27,23 @@ module.exports = async function (fastify) {
           contentType: part.mimetype,
           access: 'public',
         });
+
+        try {
+          const messageId = await pubsub
+            .topic(process.env.PUBSUB_TOPIC)
+            .publishMessage({
+              json: { filePath },
+            });
+
+          console.log('📤 PubSub message sent');
+          console.log('   Topic:', process.env.PUBSUB_TOPIC);
+          console.log('   Message ID:', messageId);
+          console.log('   Payload:', { filePath });
+
+        } catch (err) {
+          console.error('❌ Failed to publish PubSub message:', err);
+        }
+
 
         data.original.push({
           filename,
