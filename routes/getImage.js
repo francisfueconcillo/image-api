@@ -54,17 +54,15 @@ module.exports = async function (fastify) {
 
           results.forEach((result, index) => {
             const size = sizes[index];
+            const blob = result?.blobs?.[0];
 
-            if (result.blobs && result.blobs.length > 0) {
-              const blob = result.blobs[0];
-
+            if (blob && blob.pathname && blob.url) {
               data[size].push({
                 filename,
                 path: blob.pathname,
                 url: blob.url,
               });
             } else {
-              // Preserve index alignment if resize missing
               data[size].push(null);
             }
           });
