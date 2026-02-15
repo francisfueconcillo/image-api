@@ -44,10 +44,10 @@ fastify.register(require('@fastify/swagger-ui'), {
   transformStaticCSP: (header) => header,
 });
 
-
 fastify.register(require('./routes/getImage'));
 fastify.register(require('./routes/postImage'));
 fastify.register(require('./routes/putImage'));
+fastify.register(require('./routes/deleteImage'));
 
 const start = async () => {
   try {
