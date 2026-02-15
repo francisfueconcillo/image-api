@@ -20,6 +20,7 @@ const getImageSchema = {
           data: {
             type: 'object',
             properties: {
+              main: { type: 'string', description: 'URL of the main image (medium size if available)' },
               original: {
                 type: 'array',
                 items: {
