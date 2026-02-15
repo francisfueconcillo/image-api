@@ -1,4 +1,4 @@
 // blob.js
-const { put, list } = require('@vercel/blob');
+const { put, list, del } = require('@vercel/blob');
 
-module.exports = { put, list };
+module.exports = { put, list, del };
