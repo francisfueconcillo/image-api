@@ -45,9 +45,9 @@ fastify.register(require('@fastify/swagger-ui'), {
 });
 
 
-
-fastify.register(require('./routes/postImage'));
 fastify.register(require('./routes/getImage'));
+fastify.register(require('./routes/postImage'));
+fastify.register(require('./routes/putImage'));
 
 const start = async () => {
   try {

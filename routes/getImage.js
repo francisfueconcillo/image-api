@@ -4,8 +4,12 @@ const getImageSchema = require('./getImage.schema');
 module.exports = async function (fastify) {
   fastify.get('/image/:id', getImageSchema, async function (req, reply) {
     const { id } = req.params;
+
+    const imageDir = process.env.IMAGE_DIR
+      ? process.env.IMAGE_DIR + '/'
+      : '';
+
     const sizes = ['original', 'small', 'medium', 'large'];
-    const imageDir = process.env.IMAGE_DIR ? process.env.IMAGE_DIR + '/' : '';
 
     const data = {
       original: [],
@@ -15,31 +19,66 @@ module.exports = async function (fastify) {
     };
 
     try {
-      for (const size of sizes) {
-        const prefix = `${imageDir}${id}/${size}/`;
+      // -------------------------------------------------
+      // 1️⃣ Get ORIGINAL images (source of truth)
+      // -------------------------------------------------
+      const { blobs: originalBlobs } = await list({
+        prefix: `${imageDir}${id}/original/`,
+      });
 
-        const { blobs } = await list({
-          prefix,
-        });
-
-        data[size] = blobs.map(blob => {
-          const path = blob.pathname;
-          const filename = path.split('/').pop();
-
-          return {
-            filename,
-            path,
-            url: blob.url, // public already
-          };
+      if (!originalBlobs || originalBlobs.length === 0) {
+        return reply.send({
+          status: 'success',
+          data, // empty arrays
         });
       }
 
-      reply.send({
+      // Sort originals deterministically
+      const originalFilenames = originalBlobs
+        .map(blob => blob.pathname.split('/').pop())
+        .sort((a, b) => a.localeCompare(b));
+
+      // -------------------------------------------------
+      // 2️⃣ Process all images concurrently
+      // -------------------------------------------------
+      await Promise.all(
+        originalFilenames.map(async (filename) => {
+          // For this filename, fetch all sizes in parallel
+          const sizePromises = sizes.map(size =>
+            list({
+              prefix: `${imageDir}${id}/${size}/${filename}`,
+            })
+          );
+
+          const results = await Promise.all(sizePromises);
+
+          results.forEach((result, index) => {
+            const size = sizes[index];
+
+            if (result.blobs && result.blobs.length > 0) {
+              const blob = result.blobs[0];
+
+              data[size].push({
+                filename,
+                path: blob.pathname,
+                url: blob.url,
+              });
+            } else {
+              // Preserve index alignment if resize missing
+              data[size].push(null);
+            }
+          });
+        })
+      );
+
+      return reply.send({
         status: 'success',
         data,
       });
 
     } catch (err) {
+      req.log.error(err);
+
       reply.code(500).send({
         status: 'error',
         message: err.message,

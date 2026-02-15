@@ -2,7 +2,7 @@ const postImageSchema = {
   schema: {
     description: 'Upload an image file',
     tags: ['Images'],
-    summary: 'Upload an image to the server',
+    summary: 'Upload image(s) to the server',
     consumes: ['multipart/form-data'],
     params: {
       type: 'object',

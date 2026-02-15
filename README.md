@@ -1,5 +1,5 @@
 # image-api
-An Image API that uploads to Firebase Storage to be compatible for Flutter mobile apps
+An Image API that uploads images to a cloud storage to be used for Flutter mobile apps
 
 
 ## Local Setup
@@ -7,9 +7,8 @@ An Image API that uploads to Firebase Storage to be compatible for Flutter mobil
 - `pnpm start`
 
 ## Deployment
-
 - API deployed in [render.com](https://render.com/)
-- PROD API BASE URL: https://image-resizer-9pc9.onrender.com
+
 
 ## API Documentation
 
