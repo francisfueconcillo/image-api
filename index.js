@@ -37,7 +37,7 @@ fastify.register(require('@fastify/swagger'), {
 fastify.register(require('@fastify/swagger-ui'), {
   routePrefix: '/docs',
   uiConfig: {
-    docExpansion: 'full',
+    docExpansion: 'list',
     deepLinking: false,
   },
   staticCSP: true,
@@ -48,6 +48,8 @@ fastify.register(require('./routes/getImage'));
 fastify.register(require('./routes/postImage'));
 fastify.register(require('./routes/putImage'));
 fastify.register(require('./routes/deleteImage'));
+fastify.register(require('./routes/putMainImage'));
+
 
 const start = async () => {
   try {

@@ -2,7 +2,10 @@ const { del, list } = require('../blob');
 const deleteImageSchema = require('./deleteImage.schema');
 
 module.exports = async function (fastify) {
-  fastify.delete('/image/:id/:filename', deleteImageSchema, async function (req, reply) {
+  fastify.delete(
+    '/image/:id/:filename',
+    deleteImageSchema,
+    async function (req, reply) {
       const { id, filename } = req.params;
       const imageDir = process.env.IMAGE_DIR ? process.env.IMAGE_DIR + '/' : '';
       const sizes = ['original', 'small', 'medium', 'large'];
@@ -63,5 +66,5 @@ module.exports = async function (fastify) {
           data: null,
         });
       }
-  });
+    });
 };
